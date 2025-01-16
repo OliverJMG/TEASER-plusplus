@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 project(teaserpp VERSION 1.0.0)
+include(CMakePackageConfigHelpers)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/" ${CMAKE_MODULE_PATH})
 
@@ -16,7 +17,7 @@ endif ()
 option(BUILD_TESTS "Build tests" ON)
 option(BUILD_TEASER_FPFH "Build TEASER++ wrappers for PCL FPFH estimation." OFF)
 option(BUILD_MATLAB_BINDINGS "Build MATLAB bindings" OFF)
-option(BUILD_PYTHON_BINDINGS "Build Python bindings" ON)
+option(BUILD_PYTHON_BINDINGS "Build Python bindings" OFF)
 option(BUILD_DOC "Build documentation" ON)
 option(BUILD_WITH_MARCH_NATIVE "Build with flag march=native" OFF)
 option(ENABLE_MKL "Try to use Eigen with MKL" OFF)
@@ -145,9 +146,23 @@ if (BUILD_PYTHON_BINDINGS)
     add_subdirectory(python)
 endif ()
 
+write_basic_package_version_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/teaserppConfigVersion.cmake VERSION ${PROJECT_VERSION}
+  COMPATIBILITY AnyNewerVersion
+)
+
+configure_package_config_file(
+  ${CMAKE_CURRENT_LIST_DIR}/cmake/teaserppConfig.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/teaserppConfig.cmake
+  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/teaserpp
+)
+
+
 # export targets
 export(TARGETS ${TEASERPP_EXPORTED_TARGETS} FILE teaserpp-exports.cmake)
 
-install(FILES cmake/teaserppConfig.cmake
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/teaserpp
-        )
+install(
+    FILES ${CMAKE_CURRENT_BINARY_DIR}/teaserppConfig.cmake
+          ${CMAKE_CURRENT_BINARY_DIR}/teaserppConfigVersion.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/teaserpp
+)
